@@ -400,6 +400,7 @@
         <div class="form-group">
           <label>出生時辰</label>
           <select id="birthHour">
+            <option value="-1">不知道</option>
             <option value="0">子時 (23:00-01:00)</option>
             <option value="1">丑時 (01:00-03:00)</option>
             <option value="2">寅時 (03:00-05:00)</option>
@@ -1204,13 +1205,17 @@ function calculate() {
   const birthYear = parseInt(document.getElementById('birthYear').value);
   const birthMonth = parseInt(document.getElementById('birthMonth').value);
   const birthDay = parseInt(document.getElementById('birthDay').value);
-  const birthHour = parseInt(document.getElementById('birthHour').value);
+  const birthHourRaw = parseInt(document.getElementById('birthHour').value);
+  const unknownHour = birthHourRaw === -1;
+  // If unknown, derive a pseudo-hour from birth date for deterministic results
+  const birthHour = unknownHour ? ((birthYear + birthMonth + birthDay) % 12) : birthHourRaw;
   const gender = document.getElementById('gender').value;
   const bloodType = document.getElementById('bloodType').value;
   const surnameStrokes = parseInt(document.getElementById('surnameStrokes').value) || 8;
   const nameStrokes = parseInt(document.getElementById('nameStrokes').value) || 15;
 
   const result = calculateFortune(birthYear, birthMonth, birthDay, birthHour, gender, bloodType, surnameStrokes, nameStrokes);
+  result.unknownHour = unknownHour;
 
   renderResults(result);
 }
@@ -1321,6 +1326,7 @@ function renderResults(r) {
 
     <!-- Ziwei Chart -->
     <h2 class="section-title">紫微命盤</h2>
+    ${r.unknownHour ? '<p style="text-align:center;font-size:0.85rem;color:var(--text-light);margin-bottom:0.8rem">⚠ 未提供出生時辰，命盤僅供參考</p>' : ''}
     <div class="ziwei-chart">${ziweiHTML}</div>
 
     <!-- Categories -->
@@ -1342,10 +1348,10 @@ function renderResults(r) {
         <div class="lucky-label">幸運方位</div>
         <div class="lucky-value">${r.lucky.direction}</div>
       </div>
-      <div class="lucky-item">
+      ${r.unknownHour ? '' : `<div class="lucky-item">
         <div class="lucky-label">幸運時段</div>
         <div class="lucky-value">${r.lucky.hour}</div>
-      </div>
+      </div>`}
     </div>
 
     <!-- Hexagram -->

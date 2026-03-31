@@ -1285,6 +1285,9 @@ function calculateFortune(birthYear, birthMonth, birthDay, birthHour, gender, bl
     opt.value = d; opt.textContent = d + '日';
     daySel.appendChild(opt);
   }
+
+  // Restore saved user data and auto-show today's fortune
+  restoreAndAutoCalculate();
 })();
 
 function starsHTML(count) {
@@ -1307,6 +1310,44 @@ function goBack() {
   document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
 }
 
+function saveUserData() {
+  const data = {
+    birthYear: document.getElementById('birthYear').value,
+    birthMonth: document.getElementById('birthMonth').value,
+    birthDay: document.getElementById('birthDay').value,
+    birthHour: document.getElementById('birthHour').value,
+    gender: document.getElementById('gender').value,
+    bloodType: document.getElementById('bloodType').value,
+    surnameStrokes: document.getElementById('surnameStrokes').value,
+    nameStrokes: document.getElementById('nameStrokes').value,
+  };
+  try { localStorage.setItem('dailyfortune_user', JSON.stringify(data)); } catch(e) {}
+}
+
+function loadUserData() {
+  try {
+    const raw = localStorage.getItem('dailyfortune_user');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function restoreAndAutoCalculate() {
+  const saved = loadUserData();
+  if (!saved) return;
+  // Restore form values
+  document.getElementById('birthYear').value = saved.birthYear;
+  document.getElementById('birthMonth').value = saved.birthMonth;
+  document.getElementById('birthDay').value = saved.birthDay;
+  document.getElementById('birthHour').value = saved.birthHour;
+  document.getElementById('gender').value = saved.gender;
+  document.getElementById('bloodType').value = saved.bloodType;
+  document.getElementById('surnameStrokes').value = saved.surnameStrokes || '8';
+  document.getElementById('nameStrokes').value = saved.nameStrokes || '15';
+  // Auto-calculate and show results
+  calculate();
+}
+
 function calculate() {
   const birthYear = parseInt(document.getElementById('birthYear').value);
   const birthMonth = parseInt(document.getElementById('birthMonth').value);
@@ -1319,6 +1360,9 @@ function calculate() {
   const bloodType = document.getElementById('bloodType').value;
   const surnameStrokes = parseInt(document.getElementById('surnameStrokes').value) || 8;
   const nameStrokes = parseInt(document.getElementById('nameStrokes').value) || 15;
+
+  // Save user data for next visit
+  saveUserData();
 
   const result = calculateFortune(birthYear, birthMonth, birthDay, birthHour, gender, bloodType, surnameStrokes, nameStrokes);
   result.unknownHour = unknownHour;

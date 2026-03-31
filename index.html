@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日日一算 — 今日運勢</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFF8F0;
+      --bg2: #FFF0E0;
+      --primary: #C75B39;
+      --gold: #D4A855;
+      --brown: #3D2B1F;
+      --text: #3D2B1F;
+      --text-light: #8B7355;
+      --card-bg: #FFFFFF;
+      --shadow: rgba(199,91,57,0.12);
+      --border: #F0DCC8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0.8rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255,248,240,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--gold);
+    }
+    .logo {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--primary);
+    }
+    .nav-links { display: flex; gap: 1.2rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: var(--text-light);
+      font-size: 0.9rem; font-weight: 500;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* ===== HERO / INPUT ===== */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 6rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .hero-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 2.8rem; font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem; color: var(--text-light);
+      margin-bottom: 2.5rem;
+    }
+
+    /* ===== FORM ===== */
+    .form-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 8px 32px var(--shadow);
+      max-width: 500px; width: 100%;
+      border: 1px solid var(--border);
+    }
+    .form-row {
+      display: flex; gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      flex: 1; display: flex; flex-direction: column;
+    }
+    .form-group label {
+      font-size: 0.85rem; font-weight: 500;
+      color: var(--text-light); margin-bottom: 0.3rem;
+    }
+    .form-group select,
+    .form-group input {
+      padding: 0.6rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'Noto Sans TC', sans-serif;
+      background: #FFFBF5;
+      color: var(--text);
+      transition: border-color 0.3s;
+    }
+    .form-group select:focus,
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+    .btn-fortune {
+      width: 100%; padding: 0.9rem;
+      background: linear-gradient(135deg, var(--primary), #E07B5A);
+      color: white; border: none;
+      border-radius: 12px;
+      font-size: 1.1rem; font-weight: 700;
+      font-family: 'Noto Serif TC', serif;
+      cursor: pointer;
+      margin-top: 0.8rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-fortune:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(199,91,57,0.3);
+    }
+    .btn-fortune:active { transform: translateY(0); }
+
+    /* ===== RESULTS ===== */
+    #results {
+      display: none;
+      padding: 2rem 1.5rem 3rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    #results.show { display: block; animation: fadeIn 0.6s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--primary);
+      margin: 2rem 0 1rem;
+      text-align: center;
+    }
+
+    /* Overall fortune card */
+    .overall-card {
+      background: linear-gradient(135deg, #FFF8F0, #FFF0E0);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      border: 2px solid var(--gold);
+      margin-bottom: 2rem;
+    }
+    .fortune-level {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 2.5rem; font-weight: 700;
+      color: var(--primary);
+    }
+    .fortune-stars { font-size: 1.5rem; color: var(--gold); margin: 0.5rem 0; }
+    .fortune-score { font-size: 1rem; color: var(--text-light); }
+
+    /* Profile summary */
+    .profile-row {
+      display: flex; flex-wrap: wrap; gap: 0.8rem;
+      justify-content: center; margin-bottom: 1.5rem;
+    }
+    .profile-tag {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.4rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+    .profile-tag strong { color: var(--primary); }
+
+    /* Category cards */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .cat-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.2rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+    .cat-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.6rem;
+    }
+    .cat-name { font-weight: 700; font-size: 1rem; }
+    .cat-stars { color: var(--gold); font-size: 0.9rem; }
+    .cat-bar {
+      height: 6px; background: var(--bg2);
+      border-radius: 3px; margin-bottom: 0.5rem; overflow: hidden;
+    }
+    .cat-bar-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--primary));
+      transition: width 0.8s ease;
+    }
+    .cat-text { font-size: 0.85rem; color: var(--text-light); line-height: 1.5; }
+
+    /* Lucky section */
+    .lucky-row {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      justify-content: center; margin-bottom: 2rem;
+    }
+    .lucky-item {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      min-width: 120px;
+    }
+    .lucky-label { font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.3rem; }
+    .lucky-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+    .lucky-color-swatch {
+      display: inline-block; width: 24px; height: 24px;
+      border-radius: 50%; vertical-align: middle;
+      margin-right: 0.3rem; border: 2px solid var(--border);
+    }
+
+    /* Ziwei chart */
+    .ziwei-chart {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, auto);
+      gap: 2px;
+      background: var(--gold);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      border: 2px solid var(--gold);
+    }
+    .ziwei-cell {
+      background: var(--card-bg);
+      padding: 0.5rem 0.4rem;
+      min-height: 80px;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      position: relative;
+    }
+    .ziwei-cell.highlight { background: #FFF5E5; }
+    .ziwei-cell.center {
+      grid-column: 2 / 4;
+      grid-row: 2 / 4;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #FFF8F0, #FFF0E0);
+      font-size: 0.9rem;
+    }
+    .ziwei-palace { font-weight: 700; color: var(--primary); font-size: 0.7rem; }
+    .ziwei-stars { color: var(--text); font-size: 0.65rem; }
+    .ziwei-hua { color: var(--gold); font-size: 0.6rem; }
+
+    /* Hexagram */
+    .hex-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .hex-symbol { font-size: 3rem; line-height: 1; }
+    .hex-name {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--primary); margin: 0.3rem 0;
+    }
+    .hex-judgment { font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.5rem; }
+    .hex-advice {
+      font-size: 0.95rem; color: var(--text);
+      font-style: italic; line-height: 1.6;
+    }
+
+    /* Fortune text */
+    .fortune-text-card {
+      background: linear-gradient(135deg, #FFF8F0, #FFF3E5);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid var(--gold);
+      margin-bottom: 2rem;
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    /* Back button */
+    .btn-back {
+      display: block; margin: 1rem auto;
+      padding: 0.7rem 2rem;
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      border-radius: 12px;
+      font-size: 1rem; font-weight: 500;
+      font-family: 'Noto Sans TC', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-back:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--bg2);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    .daily-series {
+      margin-bottom: 1.5rem;
+    }
+    .daily-series h3 {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.1rem; color: var(--primary);
+      margin-bottom: 0.8rem;
+    }
+    .daily-links {
+      display: flex; flex-wrap: wrap;
+      gap: 0.8rem; justify-content: center;
+    }
+    .daily-links a {
+      display: inline-block;
+      padding: 0.5rem 1.2rem;
+      background: var(--card-bg);
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .daily-links a:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .copyright {
+      font-size: 0.8rem; color: var(--text-light);
+      margin-top: 1rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .hero-title { font-size: 2rem; }
+      .form-card { padding: 1.5rem 1.2rem; }
+      .form-row { flex-direction: column; gap: 0.5rem; }
+      .categories-grid { grid-template-columns: 1fr 1fr; }
+      .ziwei-cell { min-height: 60px; font-size: 0.6rem; padding: 0.3rem; }
+      .ziwei-palace { font-size: 0.6rem; }
+      .ziwei-stars { font-size: 0.55rem; }
+      .lucky-row { gap: 0.6rem; }
+      .lucky-item { min-width: 100px; padding: 0.8rem; }
+    }
+    @media (max-width: 400px) {
+      .categories-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">日日一算</div>
+    <ul class="nav-links">
+      <li><a href="#hero">算命</a></li>
+      <li><a href="javascript:void(0)" onclick="scrollToResults()">結果</a></li>
+    </ul>
+  </nav>
+
+  <section id="hero">
+    <h1 class="hero-title">日日一算</h1>
+    <p class="hero-subtitle">輸入你的資料，看看今天的運勢如何</p>
+
+    <div class="form-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>出生年</label>
+          <select id="birthYear"></select>
+        </div>
+        <div class="form-group">
+          <label>出生月</label>
+          <select id="birthMonth"></select>
+        </div>
+        <div class="form-group">
+          <label>出生日</label>
+          <select id="birthDay"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>出生時辰</label>
+          <select id="birthHour">
+            <option value="0">子時 (23:00-01:00)</option>
+            <option value="1">丑時 (01:00-03:00)</option>
+            <option value="2">寅時 (03:00-05:00)</option>
+            <option value="3">卯時 (05:00-07:00)</option>
+            <option value="4">辰時 (07:00-09:00)</option>
+            <option value="5">巳時 (09:00-11:00)</option>
+            <option value="6">午時 (11:00-13:00)</option>
+            <option value="7">未時 (13:00-15:00)</option>
+            <option value="8">申時 (15:00-17:00)</option>
+            <option value="9">酉時 (17:00-19:00)</option>
+            <option value="10">戌時 (19:00-21:00)</option>
+            <option value="11">亥時 (21:00-23:00)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>性別</label>
+          <select id="gender">
+            <option value="M">男</option>
+            <option value="F">女</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>血型</label>
+          <select id="bloodType">
+            <option value="A">A 型</option>
+            <option value="B">B 型</option>
+            <option value="O">O 型</option>
+            <option value="AB">AB 型</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>姓氏筆畫</label>
+          <input type="number" id="surnameStrokes" min="1" max="30" value="8" placeholder="例：8">
+        </div>
+        <div class="form-group">
+          <label>名字筆畫（總和）</label>
+          <input type="number" id="nameStrokes" min="1" max="60" value="15" placeholder="例：15">
+        </div>
+      </div>
+      <button class="btn-fortune" onclick="calculate()">算一算</button>
+    </div>
+  </section>
+
+  <section id="results">
+    <div id="resultContent"></div>
+    <button class="btn-back" onclick="goBack()">重新算一次</button>
+  </section>
+
+  <footer>
+    <div class="daily-series">
+      <h3>日日系列</h3>
+      <div class="daily-links">
+        <a href="https://dailypoem.getlessen.com">日日一詩</a>
+        <a href="https://dailynews.getlessen.com">日日一報</a>
+        <a href="https://dailycolor.getlessen.com">日日一色</a>
+        <a href="https://dailyjoke.getlessen.com">日日一笑</a>
+        <a href="https://dailyfortune.getlessen.com">日日一算</a>
+      </div>
+    </div>
+    <div class="copyright">日日一算 &copy; 2026 — 願星辰指引你的每一天</div>
+  </footer>
+
+<script>
+// ========== DATA ==========
+
+// Heavenly Stems & Earthly Branches
+const STEMS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const STEM_ELEMENTS = ['木','木','火','火','土','土','金','金','水','水'];
+const BRANCH_ELEMENTS = ['水','土','木','木','土','火','火','土','金','金','土','水'];
+const ANIMALS = ['鼠','牛','虎','兔','龍','蛇','馬','羊','猴','雞','狗','豬'];
+const ELEMENTS = ['金','木','水','火','土'];
+const ELEMENT_COLORS = { '金':['白','銀','金','淺灰'], '木':['綠','青','翠','草綠'], '水':['藍','黑','深藍','靛'], '火':['紅','紫','橙','桃紅'], '土':['黃','棕','駝','米'] };
+const ELEMENT_HEX = { '金':'#C0C0C0', '木':'#4CAF50', '水':'#2196F3', '火':'#F44336', '土':'#D4A855' };
+const ELEMENT_DIR = { '金':'西方', '木':'東方', '水':'北方', '火':'南方', '土':'中央' };
+const GENERATING = { '木':'火','火':'土','土':'金','金':'水','水':'木' };
+const OVERCOMING = { '木':'土','土':'水','水':'火','火':'金','金':'木' };
+
+// Zodiac relationships
+const SIX_HARMONIES = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]];
+const THREE_HARMONIES = [[0,4,8],[1,5,9],[2,6,10],[3,7,11]];
+const SIX_CLASHES = [[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]];
+
+// Chinese zodiac data
+const ZODIAC_DATA = [
+  { name:'鼠', element:'水', traits:['機智','靈活','多疑'] },
+  { name:'牛', element:'土', traits:['勤勞','踏實','固執'] },
+  { name:'虎', element:'木', traits:['勇敢','自信','急躁'] },
+  { name:'兔', element:'木', traits:['溫和','敏感','謹慎'] },
+  { name:'龍', element:'土', traits:['熱情','果斷','驕傲'] },
+  { name:'蛇', element:'火', traits:['深沉','智慧','多疑'] },
+  { name:'馬', element:'火', traits:['奔放','樂觀','急躁'] },
+  { name:'羊', element:'土', traits:['溫柔','善良','優柔'] },
+  { name:'猴', element:'金', traits:['聰明','靈活','善變'] },
+  { name:'雞', element:'金', traits:['勤奮','直率','挑剔'] },
+  { name:'狗', element:'土', traits:['忠誠','正義','焦慮'] },
+  { name:'豬', element:'水', traits:['豁達','善良','懶散'] },
+];
+
+// Branch hour names
+const HOUR_NAMES = ['子時','丑時','寅時','卯時','辰時','巳時','午時','未時','申時','酉時','戌時','亥時'];
+
+// 12 Ziwei palaces
+const PALACE_NAMES = ['命宮','兄弟','夫妻','子女','財帛','疾厄','遷移','交友','事業','田宅','福德','父母'];
+
+// 14 Main stars
+const MAIN_STARS = ['紫微','天機','太陽','武曲','天同','廉貞','天府','太陰','貪狼','巨門','天相','天梁','七殺','破軍'];
+
+// Star nature scores (for fortune calculation)
+const STAR_FORTUNE = {
+  '紫微':0.85,'天機':0.70,'太陽':0.80,'武曲':0.75,'天同':0.72,'廉貞':0.55,
+  '天府':0.82,'太陰':0.68,'貪狼':0.65,'巨門':0.50,'天相':0.78,'天梁':0.76,
+  '七殺':0.48,'破軍':0.42,
+  '文昌':0.10,'文曲':0.10,'左輔':0.12,'右弼':0.12,'天魁':0.08,'天鉞':0.08
+};
+
+// Star category influences
+const STAR_CATEGORIES = {
+  '紫微': { love:0.7, career:0.9, wealth:0.8, health:0.7, study:0.8, social:0.8 },
+  '天機': { love:0.6, career:0.7, wealth:0.5, health:0.6, study:0.9, social:0.7 },
+  '太陽': { love:0.8, career:0.8, wealth:0.7, health:0.6, study:0.7, social:0.9 },
+  '武曲': { love:0.4, career:0.8, wealth:0.9, health:0.7, study:0.6, social:0.5 },
+  '天同': { love:0.8, career:0.5, wealth:0.5, health:0.8, study:0.6, social:0.8 },
+  '廉貞': { love:0.7, career:0.6, wealth:0.5, health:0.5, study:0.5, social:0.4 },
+  '天府': { love:0.7, career:0.8, wealth:0.9, health:0.8, study:0.7, social:0.7 },
+  '太陰': { love:0.9, career:0.6, wealth:0.7, health:0.5, study:0.8, social:0.6 },
+  '貪狼': { love:0.9, career:0.7, wealth:0.6, health:0.5, study:0.5, social:0.8 },
+  '巨門': { love:0.4, career:0.6, wealth:0.5, health:0.5, study:0.7, social:0.3 },
+  '天相': { love:0.7, career:0.7, wealth:0.7, health:0.7, study:0.7, social:0.8 },
+  '天梁': { love:0.6, career:0.7, wealth:0.6, health:0.8, study:0.8, social:0.7 },
+  '七殺': { love:0.3, career:0.7, wealth:0.6, health:0.4, study:0.5, social:0.4 },
+  '破軍': { love:0.3, career:0.5, wealth:0.4, health:0.4, study:0.4, social:0.3 },
+};
+
+// Four Transformations (四化) by year stem
+const FOUR_TRANS = {
+  '甲': ['廉貞','破軍','武曲','太陽'],
+  '乙': ['天機','天梁','紫微','太陰'],
+  '丙': ['天同','天機','文昌','廉貞'],
+  '丁': ['太陰','天同','天機','巨門'],
+  '戊': ['貪狼','太陰','右弼','天機'],
+  '己': ['武曲','貪狼','天梁','文曲'],
+  '庚': ['太陽','武曲','太陰','天同'],
+  '辛': ['巨門','太陽','文曲','文昌'],
+  '壬': ['天梁','紫微','左輔','武曲'],
+  '癸': ['破軍','巨門','太陰','貪狼'],
+};
+const TRANS_NAMES = ['祿','權','科','忌'];
+
+// Five Element Bureau (五行局) for Ziwei calculation
+// Indexed by [stemIndex % 5][命宮branchIndex]
+const FIVE_BUREAU = [
+  [2,6,3,3,5,6,2,6,4,4,5,6],
+  [6,5,4,4,6,5,6,5,3,3,6,5],
+  [3,3,5,6,2,6,3,3,5,6,2,6],
+  [4,4,6,5,6,5,4,4,6,5,6,5],
+  [5,6,2,6,3,3,5,6,2,6,3,3],
+];
+
+// Ziwei star position table: given bureau and lunarDay, get Ziwei's branch position
+function getZiweiPosition(bureau, lunarDay) {
+  // Simplified calculation based on traditional method
+  const lookup = {
+    2: [1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,0,0,1,1,2,2,3,3,4],
+    3: [2,1,3,2,4,3,5,4,6,5,7,6,8,7,9,8,10,9,11,10,0,11,1,0,2,1,3,2,4,3],
+    4: [1,0,2,3,1,3,4,2,4,5,3,5,6,4,6,7,5,7,8,6,8,9,7,9,10,8,10,11,9,11],
+    5: [0,11,1,0,2,1,3,2,4,3,5,4,6,5,7,6,8,7,9,8,10,9,11,10,0,11,1,0,2,1],
+    6: [11,10,0,11,1,0,2,1,3,2,4,3,5,4,6,5,7,6,8,7,9,8,10,9,11,10,0,11,1,0],
+  };
+  if (!lookup[bureau]) return 0;
+  return lookup[bureau][(lunarDay - 1) % 30] || 0;
+}
+
+// Place 14 main stars based on Ziwei position
+function placeMainStars(ziweiPos) {
+  const stars = new Array(12).fill(null).map(() => []);
+  // 紫微星系 (clockwise from ziwei)
+  const zwGroup = [0, -1, -2, -3, -4, -5]; // 紫微,天機,太陽(skip),武曲,天同,廉貞(skip to)
+  stars[ziweiPos].push('紫微');
+  stars[(ziweiPos + 11) % 12].push('天機');
+  // 太陽 skip one
+  stars[(ziweiPos + 9) % 12].push('太陽');
+  stars[(ziweiPos + 8) % 12].push('武曲');
+  stars[(ziweiPos + 7) % 12].push('天同');
+  // 廉貞
+  stars[(ziweiPos + 4) % 12].push('廉貞');
+
+  // 天府星系 (counter-clockwise from tianfu)
+  const tianfuPos = (12 - ziweiPos + 4) % 12; // Mirror of ziwei around 寅午 axis
+  stars[tianfuPos].push('天府');
+  stars[(tianfuPos + 1) % 12].push('太陰');
+  stars[(tianfuPos + 2) % 12].push('貪狼');
+  stars[(tianfuPos + 3) % 12].push('巨門');
+  stars[(tianfuPos + 4) % 12].push('天相');
+  stars[(tianfuPos + 5) % 12].push('天梁');
+  stars[(tianfuPos + 6) % 12].push('七殺');
+  stars[(tianfuPos + 10) % 12].push('破軍');
+
+  return stars;
+}
+
+// Place auxiliary stars
+function placeAuxStars(yearStem, yearBranch, hour, stars) {
+  // 文昌: based on birth hour (巳起逆行)
+  const wenchangPos = (10 - hour + 12) % 12;
+  stars[wenchangPos].push('文昌');
+  // 文曲: based on birth hour (巳起順行)
+  const wenquPos = (4 + hour) % 12;
+  stars[wenquPos].push('文曲');
+  // 左輔: based on lunar month (辰起順行)
+  // 右弼: based on lunar month (戌起逆行)
+  // For simplicity, derive from year branch
+  stars[(yearBranch + 4) % 12].push('左輔');
+  stars[(10 - yearBranch + 12) % 12].push('右弼');
+  // 天魁/天鉞: based on year stem
+  const kuiYue = {
+    0:[1,7], 1:[0,8], 2:[11,9], 3:[11,9], 4:[1,7],
+    5:[0,8], 6:[7,1], 7:[6,2], 8:[3,5], 9:[3,5]
+  };
+  const [kuiPos, yuePos] = kuiYue[yearStem] || [0,6];
+  stars[kuiPos].push('天魁');
+  stars[yuePos].push('天鉞');
+  return stars;
+}
+
+// Lunar calendar data (standard encoding)
+// Each entry: [lunarInfo, leapMonth, lunarNewYearMonth, lunarNewYearDay]
+// lunarInfo bits 0-12: days of months (0=29, 1=30), bit 13-16: leap month days
+const LUNAR_INFO = [
+  0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2, // 1940-1949
+  0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977, // 1950-1959
+  0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970, // 1960-1969
+  0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950, // 1970-1979
+  0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557, // 1980-1989
+  0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0, // 1990-1999
+  0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0, // 2000-2009
+  0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6, // 2010-2019
+  0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570, // 2020-2029
+  0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,0x092e0, // 2030-2039
+  0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5, // 2040-2049
+  0x0a950, // 2050
+];
+
+// Lunar New Year dates (month, day) for 1940-2050
+const LUNAR_NY = [
+  [2,8],[1,27],[2,15],[2,5],[1,25],[2,13],[2,2],[1,22],[2,10],[1,29],
+  [2,17],[2,6],[1,27],[2,14],[2,3],[1,24],[2,12],[1,31],[2,18],[2,8],
+  [1,28],[2,15],[2,5],[1,25],[2,13],[2,2],[1,21],[2,9],[1,30],[2,17],
+  [2,6],[1,27],[2,15],[2,4],[1,25],[2,11],[1,31],[2,18],[2,7],[1,28],
+  [2,16],[2,5],[1,25],[2,13],[2,2],[1,22],[2,9],[1,29],[2,17],[2,7],
+  [1,27],[2,15],[2,4],[1,23],[2,10],[1,31],[2,19],[2,7],[1,28],[2,16],
+  [2,5],[1,25],[2,13],[2,3],[1,23],[2,9],[1,29],[2,17],[2,6],[1,26],
+  [2,14],[2,3],[1,23],[2,11],[1,31],[2,18],[2,7],[1,28],[2,16],[2,5],
+  [1,25],[2,12],[2,1],[1,22],[2,10],[1,29],[2,17],[2,6],[1,26],[2,14],
+  [2,3],[1,23],[2,10],[1,30],[2,19],[2,8],[1,28],[2,15],[2,4],[1,25],
+  [2,12],[2,1],[1,22],[2,10],[1,29],[2,17],[2,6],[1,26],[2,13],[2,2],
+  [1,23], // 2050
+];
+
+function getLunarDate(year, month, day) {
+  const idx = year - 1940;
+  if (idx < 0 || idx >= LUNAR_NY.length) return { lYear: year, lMonth: 1, lDay: 1, isLeap: false };
+
+  const nyMonth = LUNAR_NY[idx][0];
+  const nyDay = LUNAR_NY[idx][1];
+  const info = LUNAR_INFO[idx];
+
+  const nyDate = new Date(year, nyMonth - 1, nyDay);
+  const targetDate = new Date(year, month - 1, day);
+  let offset = Math.floor((targetDate - nyDate) / 86400000);
+
+  let lYear = year;
+  if (offset < 0) {
+    // Before lunar new year, belongs to previous lunar year
+    const prevIdx = idx - 1;
+    if (prevIdx < 0) return { lYear: year - 1, lMonth: 12, lDay: 1, isLeap: false };
+    const prevInfo = LUNAR_INFO[prevIdx];
+    const prevNY = LUNAR_NY[prevIdx];
+    const prevNYDate = new Date(year - 1, prevNY[0] - 1, prevNY[1]);
+    offset = Math.floor((targetDate - prevNYDate) / 86400000);
+    lYear = year - 1;
+    return lunarFromOffset(offset, prevInfo, lYear);
+  }
+
+  return lunarFromOffset(offset, info, lYear);
+}
+
+function lunarFromOffset(offset, info, lYear) {
+  const leapMonth = (info >> 16) & 0xF;
+  let lMonth = 1, isLeap = false;
+
+  for (let m = 1; m <= 12; m++) {
+    let days = (info & (1 << (16 - m))) ? 30 : 29;
+    if (offset < days) {
+      return { lYear, lMonth: m, lDay: offset + 1, isLeap: false };
+    }
+    offset -= days;
+
+    if (leapMonth === m) {
+      days = (info & (1 << 24)) ? 30 : 29; // Simplified: use bit for leap month days
+      if (offset < days) {
+        return { lYear, lMonth: m, lDay: offset + 1, isLeap: true };
+      }
+      offset -= days;
+    }
+  }
+  return { lYear, lMonth: 12, lDay: offset + 1, isLeap: false };
+}
+
+// Get year stem and branch index
+function getYearStemBranch(year) {
+  return { stem: (year - 4) % 10, branch: (year - 4) % 12 };
+}
+
+// Get command palace position
+function getCommandPalace(lunarMonth, hour) {
+  // 寅(2) 起正月，逆數月份，順數時辰
+  return (2 + lunarMonth - 1 - hour + 120) % 12;
+}
+
+// Get command palace stem from year stem and palace branch
+function getPalaceStem(yearStem, palaceBranch) {
+  // 五虎遁: 甲己起丙寅, 乙庚起戊寅, 丙辛起庚寅, 丁壬起壬寅, 戊癸起甲寅
+  const starts = [2, 4, 6, 8, 0];
+  const startStem = starts[yearStem % 5];
+  return (startStem + palaceBranch - 2 + 10) % 10;
+}
+
+// Full Ziwei chart calculation
+function calculateZiweiChart(birthYear, birthMonth, birthDay, birthHour) {
+  const lunar = getLunarDate(birthYear, birthMonth, birthDay);
+  const { stem: yearStem, branch: yearBranch } = getYearStemBranch(lunar.lYear);
+
+  // Command palace position
+  const cmdPos = getCommandPalace(lunar.lMonth, birthHour);
+  const cmdStem = getPalaceStem(yearStem, (cmdPos + 2) % 12); // adjust for branch offset
+
+  // Five Element Bureau
+  const bureau = FIVE_BUREAU[cmdStem % 5][(cmdPos)] || 2;
+
+  // Place Ziwei star
+  const ziweiPos = getZiweiPosition(bureau, lunar.lDay);
+
+  // Place all main stars
+  let stars = placeMainStars(ziweiPos);
+
+  // Place auxiliary stars
+  stars = placeAuxStars(yearStem, yearBranch, birthHour, stars);
+
+  // Four Transformations
+  const stemChar = STEMS[yearStem];
+  const trans = FOUR_TRANS[stemChar] || FOUR_TRANS['甲'];
+  const transMap = {};
+  trans.forEach((star, i) => { transMap[star] = (transMap[star] || '') + TRANS_NAMES[i]; });
+
+  // Build palace data
+  const palaces = [];
+  for (let i = 0; i < 12; i++) {
+    const pos = (cmdPos + i) % 12;
+    const palaceStars = stars[pos] || [];
+    const hua = {};
+    palaceStars.forEach(s => { if (transMap[s]) hua[s] = transMap[s]; });
+    palaces.push({
+      name: PALACE_NAMES[i],
+      branch: BRANCHES[pos],
+      branchIndex: pos,
+      stars: palaceStars,
+      hua,
+    });
+  }
+
+  return {
+    lunar, yearStem, yearBranch, cmdPos, bureau, ziweiPos,
+    palaces, transMap,
+    cmdStarMain: stars[cmdPos].length > 0 ? stars[cmdPos][0] : '天府',
+  };
+}
+
+// ========== WESTERN ZODIAC ==========
+const WESTERN_ZODIAC = [
+  { name:'摩羯座', s:12, sd:22, e:1, ed:19, weights:{love:0.5,career:0.9,wealth:0.8,health:0.6,study:0.7,social:0.5} },
+  { name:'水瓶座', s:1, sd:20, e:2, ed:18, weights:{love:0.6,career:0.7,wealth:0.5,health:0.6,study:0.9,social:0.8} },
+  { name:'雙魚座', s:2, sd:19, e:3, ed:20, weights:{love:0.9,career:0.5,wealth:0.4,health:0.5,study:0.6,social:0.7} },
+  { name:'白羊座', s:3, sd:21, e:4, ed:19, weights:{love:0.7,career:0.8,wealth:0.6,health:0.7,study:0.5,social:0.8} },
+  { name:'金牛座', s:4, sd:20, e:5, ed:20, weights:{love:0.6,career:0.7,wealth:0.9,health:0.7,study:0.6,social:0.5} },
+  { name:'雙子座', s:5, sd:21, e:6, ed:21, weights:{love:0.7,career:0.6,wealth:0.6,health:0.5,study:0.8,social:0.9} },
+  { name:'巨蟹座', s:6, sd:22, e:7, ed:22, weights:{love:0.9,career:0.6,wealth:0.6,health:0.6,study:0.6,social:0.7} },
+  { name:'獅子座', s:7, sd:23, e:8, ed:22, weights:{love:0.7,career:0.9,wealth:0.7,health:0.7,study:0.6,social:0.8} },
+  { name:'處女座', s:8, sd:23, e:9, ed:22, weights:{love:0.5,career:0.8,wealth:0.7,health:0.8,study:0.9,social:0.5} },
+  { name:'天秤座', s:9, sd:23, e:10, ed:23, weights:{love:0.8,career:0.7,wealth:0.6,health:0.6,study:0.7,social:0.9} },
+  { name:'天蠍座', s:10, sd:24, e:11, ed:22, weights:{love:0.8,career:0.8,wealth:0.7,health:0.5,study:0.7,social:0.5} },
+  { name:'射手座', s:11, sd:23, e:12, ed:21, weights:{love:0.7,career:0.6,wealth:0.5,health:0.8,study:0.6,social:0.9} },
+];
+
+function getWesternZodiac(month, day) {
+  for (const z of WESTERN_ZODIAC) {
+    if (z.s === z.e) { if (month === z.s && day >= z.sd && day <= z.ed) return z; }
+    else if ((month === z.s && day >= z.sd) || (month === z.e && day <= z.ed)) return z;
+  }
+  return WESTERN_ZODIAC[0];
+}
+
+// ========== BLOOD TYPE ==========
+const BLOOD_TYPES = {
+  A:  { traits:['細膩','認真','完美主義'], weights:{love:0.7,career:0.7,wealth:0.6,health:0.8,study:0.8,social:0.6} },
+  B:  { traits:['自由','創意','我行我素'], weights:{love:0.6,career:0.6,wealth:0.5,health:0.6,study:0.6,social:0.7} },
+  O:  { traits:['豪爽','領導力','自信'], weights:{love:0.7,career:0.8,wealth:0.7,health:0.7,study:0.5,social:0.8} },
+  AB: { traits:['理性','神秘','雙重性格'], weights:{love:0.5,career:0.7,wealth:0.6,health:0.5,study:0.7,social:0.5} },
+};
+
+// ========== NAME STROKES (三才五格) ==========
+function getNameFortune(surname, name) {
+  const tianGe = surname + 1;
+  const renGe = surname + name;
+  const diGe = name + 1;
+  const total = surname + name;
+
+  // Simplified San Cai (三才) fortune based on elements
+  const getElement = n => ['木','火','土','金','水'][(n % 10 > 0 ? n % 10 - 1 : 9) % 5];
+  const tian = getElement(tianGe);
+  const ren = getElement(renGe);
+  const di = getElement(diGe);
+
+  // Check if elements are in generating cycle
+  let score = 50;
+  if (GENERATING[tian] === ren) score += 15;
+  if (GENERATING[ren] === di) score += 15;
+  if (OVERCOMING[tian] === ren) score -= 10;
+  if (OVERCOMING[ren] === di) score -= 10;
+  if (tian === ren) score += 5;
+  if (ren === di) score += 5;
+
+  // Total strokes lucky numbers
+  const luckyTotals = [1,3,5,6,7,8,11,13,15,16,17,18,21,23,24,25,29,31,32,33,35,37,39,41,45,47,48];
+  if (luckyTotals.includes(total)) score += 10;
+
+  return Math.min(100, Math.max(0, score));
+}
+
+// ========== DETERMINISTIC RNG ==========
+function hashSeed(...args) {
+  let h = 0x811c9dc5;
+  for (const arg of args) {
+    const s = String(arg);
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+  }
+  h = ((h >>> 16) ^ h) * 0x45d9f3b;
+  h = ((h >>> 16) ^ h) * 0x45d9f3b;
+  h = (h >>> 16) ^ h;
+  return h >>> 0;
+}
+
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// ========== I-CHING HEXAGRAMS (simplified 64) ==========
+const HEX_NAMES = ['乾','坤','屯','蒙','需','訟','師','比','小畜','履','泰','否','同人','大有','謙','豫','隨','蠱','臨','觀','噬嗑','賁','剝','復','無妄','大畜','頤','大過','坎','離','咸','恆','遯','大壯','晉','明夷','家人','睽','蹇','解','損','益','夬','姤','萃','升','困','井','革','鼎','震','艮','漸','歸妹','豐','旅','巽','兌','渙','節','中孚','小過','既濟','未濟'];
+const HEX_FULL = ['乾為天','坤為地','水雷屯','山水蒙','水天需','天水訟','地水師','水地比','風天小畜','天澤履','地天泰','天地否','天火同人','火天大有','地山謙','雷地豫','澤雷隨','山風蠱','地澤臨','風地觀','火雷噬嗑','山火賁','山地剝','地雷復','天雷無妄','山天大畜','山雷頤','澤風大過','坎為水','離為火','澤山咸','雷風恆','天山遯','雷天大壯','火地晉','地火明夷','風火家人','火澤睽','水山蹇','雷水解','山澤損','風雷益','澤天夬','天風姤','澤地萃','地風升','澤水困','水風井','澤火革','火風鼎','震為雷','艮為山','風山漸','雷澤歸妹','雷火豐','火山旅','巽為風','兌為澤','風水渙','水澤節','風澤中孚','雷山小過','水火既濟','火水未濟'];
+const HEX_SYMBOLS = '䷀䷁䷂䷃䷄䷅䷆䷇䷈䷉䷊䷋䷌䷍䷎䷏䷐䷑䷒䷓䷔䷕䷖䷗䷘䷙䷚䷛䷜䷝䷞䷟䷠䷡䷢䷣䷤䷥䷦䷧䷨䷩䷪䷫䷬䷭䷮䷯䷰䷱䷲䷳䷴䷵䷶䷷䷸䷹䷺䷻䷼䷽䷾䷿';
+const HEX_TONES = [0.92,0.80,0.35,0.40,0.55,0.38,0.50,0.65,0.60,0.58,0.90,0.30,0.72,0.88,0.85,0.70,0.62,0.38,0.75,0.55,0.45,0.60,0.25,0.72,0.68,0.78,0.50,0.32,0.35,0.70,0.75,0.65,0.55,0.78,0.72,0.30,0.70,0.40,0.35,0.68,0.48,0.82,0.60,0.42,0.72,0.75,0.32,0.58,0.70,0.80,0.55,0.60,0.70,0.45,0.78,0.48,0.62,0.72,0.58,0.55,0.68,0.42,0.72,0.50];
+const HEX_ADVICE = [
+  '自強不息，天道酬勤。','厚德載物，順勢而為。','萬事起頭難，堅持方見曙光。','啟蒙求知，虛心受教。',
+  '靜待時機，耐心等候。','退一步海闊天空。','紀律團結，眾志成城。','親近善人，和睦為貴。',
+  '小有積蓄，循序漸進。','謹言慎行，如履薄冰。','天地交泰，萬象更新。','困境暫時，守正待變。',
+  '志同道合，攜手共進。','光明正大，福運亨通。','謙虛為懷，百事順遂。','心懷喜悅，隨遇而安。',
+  '順勢而行，隨機應變。','正本清源，撥亂反正。','以德服人，臨事從容。','靜觀其變，深思熟慮。',
+  '明辨是非，去蕪存菁。','外表光鮮，內修德行。','順應自然，以退為進。','否極泰來，柳暗花明。',
+  '順天應人，不妄不躁。','積蓄實力，大有可為。','慎言養德，知足常樂。','謹慎行事，穩中求進。',
+  '處險不驚，以柔克剛。','光明磊落，熱情待人。','心意相通，真誠相待。','持之以恆，始終如一。',
+  '適時退讓，保全實力。','剛健有為，勇往直前。','循序晉升，步步高昇。','韜光養晦，靜待天明。',
+  '家和萬事興，以和為貴。','求同存異，化解分歧。','知難而進，迎難而上。','紓困解難，雨過天晴。',
+  '適度犧牲，換取長遠。','利人利己，互惠共贏。','果斷決行，排除障礙。','慎防小人，低調行事。',
+  '聚集人心，共創大業。','穩步上升，厚積薄發。','身處困境，保持信念。','修身養性，積善成德。',
+  '破舊立新，迎接變革。','革故鼎新，大展宏圖。','動中求靜，穩住陣腳。','止而後定，靜心沉澱。',
+  '循序漸進，水到渠成。','謹慎選擇，三思後行。','把握時機，大放異彩。','安於當下，隨遇而安。',
+  '以柔克剛，順勢而為。','和顏悅色，廣結善緣。','化解紛亂，重整秩序。','適可而止，知節有度。',
+  '誠信為本，感動人心。','謹小慎微，避免過失。','功成在即，善始善終。','保持警覺，未雨綢繆。'
+];
+
+function getHexagram(rng) {
+  const idx = Math.floor(rng() * 64);
+  return {
+    index: idx,
+    name: HEX_NAMES[idx],
+    fullName: HEX_FULL[idx],
+    symbol: HEX_SYMBOLS[idx],
+    tone: HEX_TONES[idx],
+    advice: HEX_ADVICE[idx],
+  };
+}
+
+// ========== DAY PILLAR ==========
+function getDayPillar(year, month, day) {
+  const ref = new Date(1900, 0, 1); // Jan 1 1900 = 甲子 + offset
+  const target = new Date(year, month - 1, day);
+  const days = Math.floor((target - ref) / 86400000);
+  // Jan 1 1900 is 甲戌 day (stem=0, branch=10)
+  const stemIdx = ((days % 10) + 10) % 10;
+  const branchIdx = ((days + 10) % 12 + 12) % 12;
+  return { stem: stemIdx, branch: branchIdx };
+}
+
+// ========== ZODIAC RELATIONSHIPS ==========
+function getZodiacRelation(a, b) {
+  for (const [x, y] of SIX_HARMONIES) {
+    if ((a === x && b === y) || (a === y && b === x)) return { type: '六合', score: 90 };
+  }
+  for (const trio of THREE_HARMONIES) {
+    if (trio.includes(a) && trio.includes(b)) return { type: '三合', score: 80 };
+  }
+  for (const [x, y] of SIX_CLASHES) {
+    if ((a === x && b === y) || (a === y && b === x)) return { type: '六沖', score: 25 };
+  }
+  return { type: '平', score: 55 };
+}
+
+// ========== ELEMENT INTERACTION ==========
+function getElementInteraction(mine, today) {
+  if (mine === today) return { type: '比和', score: 60, desc: '平穩和諧' };
+  if (GENERATING[today] === mine) return { type: '生我', score: 85, desc: '貴人相助' };
+  if (GENERATING[mine] === today) return { type: '我生', score: 50, desc: '付出較多' };
+  if (OVERCOMING[mine] === today) return { type: '我剋', score: 65, desc: '掌控力強' };
+  if (OVERCOMING[today] === mine) return { type: '剋我', score: 30, desc: '壓力較大' };
+  return { type: '平', score: 55, desc: '普通' };
+}
+
+// ========== FORTUNE TEXTS ==========
+const FORTUNE_TEXTS = {
+  opening: {
+    great: ['今日星辰璀璨，運勢大開。','吉星高照，萬事如意。','天時地利人和，把握良機。','紫氣東來，福運亨通。','乾坤朗朗，諸事順遂。'],
+    good: ['今日運勢不錯，穩中向好。','順風順水，小有收穫。','天象和順，宜積極行動。','日月同輝，前路明朗。','氣場平穩，適合推進計畫。'],
+    neutral: ['今日運勢平平，宜靜不宜動。','波瀾不驚，適合沉澱反思。','平淡是福，靜心修養。','天象平和，一切如常。','無風無浪，安穩度日。'],
+    bad: ['今日宜低調行事，謹慎為上。','韜光養晦，靜待時機。','小心謹慎，避免衝動。','逆水行舟，保持耐心。','風雨欲來，做好準備。'],
+  },
+  love: {
+    high: ['桃花運旺，有驚喜邂逅。','感情甜蜜，適合表白約會。','愛情運勢極佳，真心換真情。','有情人終成眷屬。'],
+    mid: ['感情平穩發展，細水長流。','與伴侶相處融洽，宜多交流。','感情無大波瀾，珍惜當下。','愛情運尚可，保持真誠。'],
+    low: ['感情方面宜冷靜，避免爭執。','桃花暫淡，專注自我提升。','感情需要空間，不宜強求。','情緒起伏，多給彼此理解。'],
+  },
+  career: {
+    high: ['事業大展鴻圖，貴人相助。','工作順利，適合爭取機會。','職場運極佳，展現實力。','事業運旺，有升遷機會。'],
+    mid: ['工作穩步推進，按部就班。','事業運平穩，做好本職即可。','職場無大事，適合規劃未來。','工作中規中矩，保持節奏。'],
+    low: ['工作遇阻，宜耐心應對。','職場壓力較大，注意溝通。','事業運低迷，暫避鋒芒。','工作挑戰多，穩住心態。'],
+  },
+  wealth: {
+    high: ['財運亨通，有意外之財。','理財運佳，適合投資規劃。','進財順利，收入可期。','偏財運旺，把握機會。'],
+    mid: ['財運平穩，量入為出。','正財運可，收支平衡。','財務狀況穩定，不宜冒險。','小有進賬，細水長流。'],
+    low: ['財運欠佳，避免大額支出。','理財需謹慎，不宜投機。','破財風險高，捂緊錢包。','財務壓力大，節流為上。'],
+  },
+  health: {
+    high: ['精力充沛，身體狀態極佳。','健康運旺，適合運動鍛煉。','身心舒暢，活力滿滿。','體能良好，把握黃金時段。'],
+    mid: ['健康無大礙，注意作息。','身體狀況尚可，適度運動。','飲食均衡，保持良好習慣。','健康平穩，不要過勞。'],
+    low: ['注意身體，多休息養生。','健康運低，避免過度消耗。','腸胃或睡眠需要關注。','體力不足，宜靜養調息。'],
+  },
+  study: {
+    high: ['思路清晰，學習效率極高。','考運亨通，知識吸收順暢。','靈感湧現，適合深度研究。','學業運佳，事半功倍。'],
+    mid: ['學習運平穩，按計畫進行。','適合複習鞏固，穩中求進。','思考力正常，保持專注。','學習順遂，維持節奏。'],
+    low: ['注意力不集中，宜調整方法。','學業壓力大，放鬆後再戰。','思緒較亂，不宜考試決策。','學習遇瓶頸，換個角度。'],
+  },
+  social: {
+    high: ['人緣極佳，貴人處處。','社交運旺，廣結善緣。','人際和諧，合作順利。','魅力四射，人氣高漲。'],
+    mid: ['人際關係平穩，和氣生財。','社交正常，維持現有關係。','與人相處融洽，不卑不亢。','人緣尚可，以和為貴。'],
+    low: ['小心口舌是非，謹言慎行。','人際摩擦增多，退一步為上。','提防小人，少說多做。','社交運低，獨處也是修行。'],
+  },
+  closing: {
+    great: ['把握機會，今天是行動的好日子！','福星高照，一切盡在掌握。','好運常伴，珍惜每一刻。'],
+    good: ['穩步前行，好運自然來。','保持積極，前路光明可期。','順其自然，一切都會更好。'],
+    neutral: ['平常心對待，靜待花開。','安穩度日，明天更值得期待。','不急不躁，一切自有安排。'],
+    bad: ['退一步海闊天空，明日再出發。','風雨過後見彩虹，保持信心。','忍一時之氣，免百日之憂。'],
+  },
+};
+
+function getFortuneText(rng, overallScore, categoryScores) {
+  const level = overallScore >= 75 ? 'great' : overallScore >= 55 ? 'good' : overallScore >= 35 ? 'neutral' : 'bad';
+
+  const pick = (arr) => arr[Math.floor(rng() * arr.length)];
+
+  let text = pick(FORTUNE_TEXTS.opening[level]);
+  const cats = ['love','career','wealth','health','study','social'];
+  const catNames = ['愛情','事業','財運','健康','學業','人際'];
+
+  // Pick top 2 and bottom 1 category to mention
+  const sorted = cats.map((c, i) => ({ cat: c, name: catNames[i], score: categoryScores[c] }))
+    .sort((a, b) => b.score - a.score);
+
+  const topCat = sorted[0];
+  const topLevel = topCat.score >= 70 ? 'high' : topCat.score >= 45 ? 'mid' : 'low';
+  text += topCat.name + '方面，' + pick(FORTUNE_TEXTS[topCat.cat][topLevel]);
+
+  const botCat = sorted[5];
+  const botLevel = botCat.score >= 70 ? 'high' : botCat.score >= 45 ? 'mid' : 'low';
+  text += botCat.name + '方面需留意，' + pick(FORTUNE_TEXTS[botCat.cat][botLevel]);
+
+  text += pick(FORTUNE_TEXTS.closing[level]);
+  return text;
+}
+
+// ========== MAIN CALCULATION ==========
+function calculateFortune(birthYear, birthMonth, birthDay, birthHour, gender, bloodType, surnameStrokes, nameStrokes) {
+  const now = new Date();
+  const todayY = now.getFullYear(), todayM = now.getMonth() + 1, todayD = now.getDate();
+
+  // Seed
+  const seed = hashSeed(birthYear, birthMonth, birthDay, birthHour, gender, bloodType, surnameStrokes, nameStrokes, todayY, todayM, todayD);
+  const rng = mulberry32(seed);
+
+  // 1. Chinese Zodiac
+  const animalIdx = (birthYear - 4) % 12;
+  const todayPillar = getDayPillar(todayY, todayM, todayD);
+  const todayAnimalIdx = todayPillar.branch;
+  const zodiacRel = getZodiacRelation(animalIdx, todayAnimalIdx);
+
+  // 2. Five Elements
+  const yearSB = getYearStemBranch(birthYear);
+  const myElement = STEM_ELEMENTS[yearSB.stem];
+  const todayElement = STEM_ELEMENTS[todayPillar.stem];
+  const elemInteraction = getElementInteraction(myElement, todayElement);
+
+  // 3. Western Zodiac
+  const western = getWesternZodiac(birthMonth, birthDay);
+
+  // 4. Day pillar (60 甲子 cycle position)
+  const birthPillar = getDayPillar(birthYear, birthMonth, birthDay);
+  const birthCycle = (birthPillar.stem * 6 + birthPillar.branch) % 60;
+  const todayCycle = (todayPillar.stem * 6 + todayPillar.branch) % 60;
+  const cycleDiff = Math.abs(todayCycle - birthCycle);
+  const cycleScore = 50 + 30 * Math.cos(cycleDiff * Math.PI / 30);
+
+  // 5. Hexagram
+  const hexagram = getHexagram(rng);
+
+  // 6. Ziwei chart
+  const ziwei = calculateZiweiChart(birthYear, birthMonth, birthDay, birthHour);
+  const cmdStar = ziwei.cmdStarMain;
+  const cmdStarCats = STAR_CATEGORIES[cmdStar] || STAR_CATEGORIES['天府'];
+
+  // Flow day palace
+  const flowDayPos = todayPillar.branch;
+  let flowPalace = null;
+  for (const p of ziwei.palaces) {
+    if (p.branchIndex === flowDayPos) { flowPalace = p; break; }
+  }
+  const flowStarScore = flowPalace && flowPalace.stars.length > 0
+    ? flowPalace.stars.reduce((sum, s) => sum + (STAR_FORTUNE[s] || 0.5), 0) / flowPalace.stars.length
+    : 0.5;
+
+  // 7. Blood type & Name & Gender
+  const bt = BLOOD_TYPES[bloodType] || BLOOD_TYPES['O'];
+  const nameFortune = getNameFortune(surnameStrokes, nameStrokes);
+  const genderMod = gender === 'M' ? 0.02 : -0.02; // Subtle modifier
+
+  // ===== SCORE COMPOSITION =====
+  const categories = {};
+  const catKeys = ['love','career','wealth','health','study','social'];
+
+  for (const key of catKeys) {
+    const random = rng() * 100; // 0-100
+    const zodiacScore = zodiacRel.score;
+    const elemScore = elemInteraction.score;
+    const westernScore = (western.weights[key] || 0.5) * 100;
+    const hexMod = hexagram.tone * 100;
+    const ziweiScore = ((cmdStarCats[key] || 0.5) * 0.5 + flowStarScore * 0.5) * 100;
+    const btScore = (bt.weights[key] || 0.5) * 100;
+    const nameScore = nameFortune;
+
+    const score = Math.round(
+      random * 0.15
+      + ziweiScore * 0.30
+      + zodiacScore * 0.10
+      + elemScore * 0.10
+      + westernScore * 0.10
+      + hexMod * 0.10
+      + btScore * 0.05
+      + nameScore * 0.05
+      + (50 + genderMod * 100) * 0.05
+    );
+
+    categories[key] = Math.min(98, Math.max(8, score));
+  }
+
+  // Overall
+  const catAvg = catKeys.reduce((s, k) => s + categories[k], 0) / 6;
+  const overallScore = Math.round(
+    catAvg * 0.40
+    + (STAR_FORTUNE[cmdStar] || 0.5) * 100 * 0.25
+    + hexagram.tone * 100 * 0.15
+    + cycleScore * 0.10
+    + nameFortune * 0.10
+  );
+  const overall = Math.min(98, Math.max(8, overallScore));
+
+  // Lucky attributes
+  const benefitElement = Object.keys(GENERATING).find(k => GENERATING[k] === myElement) || '土';
+  const luckyColors = ELEMENT_COLORS[benefitElement] || ['黃'];
+  const luckyColor = luckyColors[Math.floor(rng() * luckyColors.length)];
+  const luckyHex = ELEMENT_HEX[benefitElement] || '#D4A855';
+  const luckyNumber = ((birthPillar.stem + todayPillar.stem + todayD) % 9) + 1;
+  const luckyDir = ELEMENT_DIR[benefitElement] || '中央';
+  // Lucky hour: branch that harmonizes with birth branch
+  const luckyHourBranch = SIX_HARMONIES.find(([a, b]) => a === (birthHour % 12) || b === (birthHour % 12));
+  const luckyHourIdx = luckyHourBranch ? (luckyHourBranch[0] === (birthHour % 12) ? luckyHourBranch[1] : luckyHourBranch[0]) : (birthHour + 6) % 12;
+
+  // Fortune level
+  const fortuneLevel = overall >= 85 ? '大吉' : overall >= 70 ? '中吉' : overall >= 55 ? '小吉' : overall >= 40 ? '平' : overall >= 25 ? '小凶' : overall >= 15 ? '中凶' : '大凶';
+  const stars = Math.round(overall / 10) / 2; // 0.5-5.0 stars
+
+  // Fortune text
+  const fortuneText = getFortuneText(rng, overall, categories);
+
+  return {
+    overall, fortuneLevel, stars,
+    categories,
+    profile: {
+      animal: ZODIAC_DATA[animalIdx].name,
+      animalIdx,
+      element: myElement,
+      western: western.name,
+      bloodType,
+      gender: gender === 'M' ? '男' : '女',
+      yearPillar: STEMS[yearSB.stem] + BRANCHES[yearSB.branch],
+    },
+    today: {
+      date: `${todayY}/${todayM}/${todayD}`,
+      pillar: STEMS[todayPillar.stem] + BRANCHES[todayPillar.branch],
+      animal: ANIMALS[todayAnimalIdx],
+      element: todayElement,
+    },
+    zodiacRel,
+    elemInteraction,
+    hexagram,
+    ziwei,
+    lucky: {
+      color: luckyColor, colorHex: luckyHex,
+      number: luckyNumber, direction: luckyDir,
+      hour: HOUR_NAMES[luckyHourIdx],
+    },
+    fortuneText,
+  };
+}
+
+// ========== UI ==========
+
+// Populate form dropdowns
+(function initForm() {
+  const yearSel = document.getElementById('birthYear');
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= 1940; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y + '年';
+    if (y === 1990) opt.selected = true;
+    yearSel.appendChild(opt);
+  }
+
+  const monthSel = document.getElementById('birthMonth');
+  for (let m = 1; m <= 12; m++) {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m + '月';
+    monthSel.appendChild(opt);
+  }
+
+  const daySel = document.getElementById('birthDay');
+  for (let d = 1; d <= 31; d++) {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d + '日';
+    daySel.appendChild(opt);
+  }
+})();
+
+function starsHTML(count) {
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    if (i <= Math.floor(count)) html += '\u2605';
+    else if (i - 0.5 <= count) html += '\u2BEA';
+    else html += '\u2606';
+  }
+  return html;
+}
+
+function scrollToResults() {
+  const r = document.getElementById('results');
+  if (r.classList.contains('show')) r.scrollIntoView({ behavior: 'smooth' });
+}
+
+function goBack() {
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
+}
+
+function calculate() {
+  const birthYear = parseInt(document.getElementById('birthYear').value);
+  const birthMonth = parseInt(document.getElementById('birthMonth').value);
+  const birthDay = parseInt(document.getElementById('birthDay').value);
+  const birthHour = parseInt(document.getElementById('birthHour').value);
+  const gender = document.getElementById('gender').value;
+  const bloodType = document.getElementById('bloodType').value;
+  const surnameStrokes = parseInt(document.getElementById('surnameStrokes').value) || 8;
+  const nameStrokes = parseInt(document.getElementById('nameStrokes').value) || 15;
+
+  const result = calculateFortune(birthYear, birthMonth, birthDay, birthHour, gender, bloodType, surnameStrokes, nameStrokes);
+
+  renderResults(result);
+}
+
+function renderResults(r) {
+  const catNames = { love:'愛情運', career:'事業運', wealth:'財運', health:'健康運', study:'學業運', social:'人際運' };
+  const catIcons = { love:'♥', career:'⚡', wealth:'$', health:'✚', study:'✎', social:'☺' };
+
+  // Ziwei chart HTML (4x4 grid)
+  const chart = r.ziwei;
+  // Map palace index to grid positions (traditional layout)
+  // Grid: rows 0-3, cols 0-3
+  // Top row (L-R): 巳(5) 午(6) 未(7) 申(8)
+  // Right col (T-B): 酉(9) 戌(10) 亥(11) (but 申 already in top)
+  // Bottom row (R-L): 亥(11) 戌(10)... wait, traditional layout:
+  // Row0: 巳 午 未 申
+  // Row1: 辰 [center] [center] 酉
+  // Row2: 卯 [center] [center] 戌
+  // Row3: 寅 丑 子 亥
+  const gridMap = {
+    5:[0,0], 6:[0,1], 7:[0,2], 8:[0,3],
+    4:[1,0], 9:[1,3],
+    3:[2,0], 10:[2,3],
+    2:[3,0], 1:[3,1], 0:[3,2], 11:[3,3],
+  };
+
+  // Build grid cells
+  const cells = new Array(16).fill('');
+  const todayBranch = r.today.pillar ? BRANCHES.indexOf(r.today.pillar[1]) : -1;
+
+  for (const palace of chart.palaces) {
+    const pos = gridMap[palace.branchIndex];
+    if (!pos) continue;
+    const cellIdx = pos[0] * 4 + pos[1];
+    const isFlowDay = palace.branchIndex === (new Date().getDay() + getDayPillar(new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate()).branch) % 12;
+    const highlight = palace.name === '命宮' ? ' highlight' : '';
+    const starsText = palace.stars.join(' ');
+    const huaText = Object.entries(palace.hua).map(([s, h]) => s + h).join(' ');
+
+    cells[cellIdx] = `<div class="ziwei-cell${highlight}">
+      <div class="ziwei-palace">${palace.name}【${palace.branch}】</div>
+      <div class="ziwei-stars">${starsText || '—'}</div>
+      ${huaText ? `<div class="ziwei-hua">${huaText}</div>` : ''}
+    </div>`;
+  }
+
+  // Center cells (indices 5,6,9,10)
+  const centerHTML = `<div class="ziwei-cell center">
+    <div style="font-family:'Noto Serif TC',serif;font-size:1.2rem;font-weight:700;color:var(--primary)">紫微命盤</div>
+    <div style="font-size:0.8rem;color:var(--text-light);margin-top:0.3rem">${STEMS[chart.yearStem]}${BRANCHES[chart.yearBranch]}年 ${chart.lunar.lMonth}月${chart.lunar.lDay}日</div>
+    <div style="font-size:0.75rem;color:var(--text-light)">命宮主星：${chart.cmdStarMain}</div>
+    <div style="font-size:0.75rem;color:var(--gold)">五行局：${['','','水二局','木三局','金四局','土五局','火六局'][chart.bureau] || ''}</div>
+  </div>`;
+
+  // Fill empty cells and center
+  for (let i = 0; i < 16; i++) {
+    if ([5,6,9,10].includes(i)) cells[i] = ''; // will be replaced by center
+    else if (!cells[i]) cells[i] = '<div class="ziwei-cell"></div>';
+  }
+
+  const ziweiHTML = `
+    ${cells[0]}${cells[1]}${cells[2]}${cells[3]}
+    ${cells[4]}${centerHTML}${cells[7]}
+    ${cells[8]}${cells[11]}
+    ${cells[12]}${cells[13]}${cells[14]}${cells[15]}
+  `;
+
+  // Category cards
+  let catHTML = '';
+  for (const [key, name] of Object.entries(catNames)) {
+    const score = r.categories[key];
+    const s = Math.round(score / 10) / 2;
+    const level = score >= 70 ? 'high' : score >= 45 ? 'mid' : 'low';
+    const texts = FORTUNE_TEXTS[key][level];
+    const textIdx = Math.floor(score * 7 % texts.length);
+    catHTML += `
+      <div class="cat-card">
+        <div class="cat-header">
+          <span class="cat-name">${catIcons[key]} ${name}</span>
+          <span class="cat-stars">${starsHTML(s)}</span>
+        </div>
+        <div class="cat-bar"><div class="cat-bar-fill" style="width:${score}%"></div></div>
+        <div class="cat-text">${texts[textIdx]}</div>
+      </div>
+    `;
+  }
+
+  const html = `
+    <!-- Profile -->
+    <div class="profile-row">
+      <span class="profile-tag"><strong>${r.profile.animal}</strong>年生</span>
+      <span class="profile-tag">五行 <strong>${r.profile.element}</strong></span>
+      <span class="profile-tag"><strong>${r.profile.western}</strong></span>
+      <span class="profile-tag">${r.profile.bloodType}型</span>
+      <span class="profile-tag">${r.profile.yearPillar}年</span>
+    </div>
+
+    <!-- Overall -->
+    <div class="overall-card">
+      <div style="font-size:0.9rem;color:var(--text-light);margin-bottom:0.5rem">${r.today.date} ${r.today.pillar}日</div>
+      <div class="fortune-level">${r.fortuneLevel}</div>
+      <div class="fortune-stars">${starsHTML(r.stars)}</div>
+      <div class="fortune-score">綜合運勢 ${r.overall} 分</div>
+      <div style="font-size:0.85rem;color:var(--text-light);margin-top:0.5rem">
+        今日生肖 ${r.today.animal}・${r.zodiacRel.type}｜五行 ${r.today.element}・${r.elemInteraction.desc}
+      </div>
+    </div>
+
+    <!-- Ziwei Chart -->
+    <h2 class="section-title">紫微命盤</h2>
+    <div class="ziwei-chart">${ziweiHTML}</div>
+
+    <!-- Categories -->
+    <h2 class="section-title">六大運勢</h2>
+    <div class="categories-grid">${catHTML}</div>
+
+    <!-- Lucky -->
+    <h2 class="section-title">幸運指標</h2>
+    <div class="lucky-row">
+      <div class="lucky-item">
+        <div class="lucky-label">幸運色</div>
+        <div class="lucky-value"><span class="lucky-color-swatch" style="background:${r.lucky.colorHex}"></span>${r.lucky.color}</div>
+      </div>
+      <div class="lucky-item">
+        <div class="lucky-label">幸運數字</div>
+        <div class="lucky-value">${r.lucky.number}</div>
+      </div>
+      <div class="lucky-item">
+        <div class="lucky-label">幸運方位</div>
+        <div class="lucky-value">${r.lucky.direction}</div>
+      </div>
+      <div class="lucky-item">
+        <div class="lucky-label">幸運時段</div>
+        <div class="lucky-value">${r.lucky.hour}</div>
+      </div>
+    </div>
+
+    <!-- Hexagram -->
+    <h2 class="section-title">今日卦象</h2>
+    <div class="hex-card">
+      <div class="hex-symbol">${r.hexagram.symbol}</div>
+      <div class="hex-name">${r.hexagram.fullName}</div>
+      <div class="hex-advice">${r.hexagram.advice}</div>
+    </div>
+
+    <!-- Fortune Text -->
+    <h2 class="section-title">今日提醒</h2>
+    <div class="fortune-text-card">${r.fortuneText}</div>
+  `;
+
+  document.getElementById('resultContent').innerHTML = html;
+  const results = document.getElementById('results');
+  results.classList.add('show');
+  setTimeout(() => results.scrollIntoView({ behavior: 'smooth' }), 100);
+}
+</script>
+</body>
+</html>
